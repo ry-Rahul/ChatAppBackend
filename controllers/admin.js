@@ -3,13 +3,13 @@ import { Message } from "../models/message.js";
 import { User } from "../models/user.js";
 import jwt from "jsonwebtoken";
 import { cookieOptions } from "../utils/features.js";
+import { adminSecretKey } from "../app.js";
+
 
 const adminLogin = async (req, res, next) => {
   try {
     const { secretKey } = req.body;
-
-    const adminSecretKey = process.env.ADMIN_SECRET_KEY || "admin1234";
-
+    // const adminSecretKey = adminSecretKey
     const isMatched = secretKey === adminSecretKey;
 
     if (!isMatched) return next(new ErrorHandler("Invalid Admin Key", 401));
@@ -18,7 +18,7 @@ const adminLogin = async (req, res, next) => {
 
     return res
       .status(200)
-      .cookie("chattapp-admin-token", token, {
+      .cookie("chatapp-admin-token", token, {
         ...cookieOptions,
         maxAge: 1000 * 60 * 15,
       })
@@ -36,7 +36,7 @@ const adminLogout = async (req, res, next) => {
   try {
     return res
       .status(200)
-      .cookie("chattapp-admin-token", "", {
+      .cookie("chatapp-admin-token", "", {
         ...cookieOptions,
         maxAge: 0,
       })
@@ -46,6 +46,17 @@ const adminLogout = async (req, res, next) => {
       });
   } catch (error) {}
 };
+
+const getAdminData = async (req, res, next) => {
+    try {
+        return res.status(200).json({
+            admin: true,
+          });
+    } catch (error) {
+        console.log("Error in getting admin data", error);
+        next(error);
+    }
+}
 const allusers = async (req, res, next) => {
   try {
     const users = await User.find({});
@@ -207,4 +218,5 @@ export {
   getDashboard,
   adminLogin,
   adminLogout,
+  getAdminData,
 };

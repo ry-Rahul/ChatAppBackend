@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import { adminSecretKey } from "../app.js";
+import { ErrorHandler } from "../utils/utility.js";
 
 const isAuthenticated = async (req, res, next) => {
 
@@ -17,7 +19,7 @@ const isAuthenticated = async (req, res, next) => {
 } 
 
 const adminOnly = (req, res, next) => {
-    const token = req.cookies["chattu-admin-token"];
+    const token = req.cookies["chatapp-admin-token"];
   
     if (!token)
       return next(new ErrorHandler("Only Admin can access this route", 401));

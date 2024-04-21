@@ -268,9 +268,6 @@ const sendAttachments = async (req, res, next) => {
 
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
-    if (files.length < 1)
-      return next(new ErrorHandler("Please provide attachments", 400));
-
     //   Upload files here
     // const attachments = await uploadFilesToCloudinary(files);
     const attachments = [];

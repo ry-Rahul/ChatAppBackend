@@ -8,24 +8,29 @@ import { NEW_REQUEST } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
 
 // Create a new user and save it to the database and save in cookie
-const newUser = async (req, res) => {
-  const { name, username, password, bio } = req.body;
-  console.log(req.body);
+const newUser = async (req, res, next) => {
+  try {
+    const { name, username, password, bio } = req.body;
+    console.log(req.body);
 
-  const avatar = {
-    public_id: "avatarsxyz",
-    url: "https://www.google.com",
-  };
+    const avatar = {
+      public_id: "avatarsxyz",
+      url: "https://www.google.com",
+    };
 
-  const user = await User.create({
-    name: name,
-    bio,
-    username: username,
-    password: password,
-    avatar: avatar,
-  });
+    const user = await User.create({
+      name: name,
+      bio,
+      username: username,
+      password: password,
+      avatar: avatar,
+    });
 
-  sendTokens(res, user, 201, "User created successfully");
+    sendTokens(res, user, 201, "User created successfully");
+  } catch (error) {
+    console.log("Error in creating new user______________________")
+    next(error);
+  }
 };
 
 const login = async (req, res, next) => {
