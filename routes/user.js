@@ -8,7 +8,7 @@ import {
   sendFriendRequest,
   acceptFriendRequest,
   getNotifications,
-  getMyFriends
+  getMyFriends,
 } from "../controllers/user.js";
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -32,7 +32,7 @@ router.post(
 router.post("/login", loginValidator(), validateHandler, login);
 
 router.use(isAuthenticated);
-router.get("/me", getMyProfile);
+router.get("/me", getMyProfile); 
 router.get("/logout", logout);
 router.get("/search", searchUser);
 router.put(
@@ -43,11 +43,11 @@ router.put(
 );
 router.put(
   "/acceptrequest",
-  acceptRequestValidator(),
-  validateHandler,
+  acceptRequestValidator(), 
+  validateHandler, 
   acceptFriendRequest
 );
-router.get('/notifications', getNotifications)
-router.get('/friends', getMyFriends)
+router.get("/notifications", getNotifications);
+router.get("/friends", getMyFriends);
 
 export default router;

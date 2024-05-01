@@ -5,15 +5,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "set NODE_ENV=PRODUCTION && node app.js",
-    "dev": "set NODE_ENV=DEVELOPMENT && nodemon app.js"
+    "start": "NODE_ENV=PRODUCTION nodemon app.js",
+    "dev": "NODE_ENV=DEVELOPMENT nodemon app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "cloudinary": "^2.1.0",
+    "cloudinary": "^2.2.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

@@ -26,6 +26,7 @@ import {
 const router = express.Router();
 
 router.use(isAuthenticated);
+
 router.get("/new", newGroupValidator(), validateHandler, newGroupChat);
 router.get("/my", getMyChats);
 router.get("/my/groups", getMyGroups);

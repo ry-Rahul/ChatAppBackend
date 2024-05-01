@@ -6,6 +6,10 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  bio:{
+    type: String,
+    required: true,
+  },
   username: {
     type: String,
     required: true,
@@ -34,9 +38,9 @@ const userSchema = mongoose.Schema({
 userSchema.pre("save",async function(next){
   // if password is not modified then don't hash it again and again 
   if(!this.isModified("password")){
-    next();
+    return next();
   }
-  this.password= await hash(this.password,10);
+  this.password= await hash(this.password, 10);
 })
 
 const User = mongoose.model("User", userSchema);

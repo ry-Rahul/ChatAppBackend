@@ -1,6 +1,11 @@
 import { compare } from "bcrypt";
 import { User } from "../models/user.js";
-import { cookieOptions, emitEvent, sendTokens } from "../utils/features.js";
+import {
+  cookieOptions,
+  emitEvent,
+  sendTokens,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { Chat } from "../models/chat.js";
 import Request from "../models/request.js";
@@ -11,24 +16,29 @@ import { getOtherMember } from "../lib/helper.js";
 const newUser = async (req, res, next) => {
   try {
     const { name, username, password, bio } = req.body;
-    console.log(req.body);
+
+    const file = req.file;
+
+    if (!file) return next(new ErrorHandler("Please Upload Avatar"));
+
+    const result = await uploadFilesToCloudinary([file]);
 
     const avatar = {
-      public_id: "avatarsxyz",
-      url: "https://www.google.com",
+      public_id: result[0].public_id,
+      url: result[0].url,
     };
 
     const user = await User.create({
-      name: name,
+      name,
       bio,
-      username: username,
-      password: password,
-      avatar: avatar,
+      username,
+      password,
+      avatar,
     });
 
-    sendTokens(res, user, 201, "User created successfully");
+    sendTokens(res, user, 201, "User created");
   } catch (error) {
-    console.log("Error in creating new user______________________")
+    console.log("Error in creating new user______________________");
     next(error);
   }
 };
@@ -49,12 +59,20 @@ const login = async (req, res, next) => {
   }
 };
 
-const getMyProfile = async (req, res) => {
-  const user = await User.findById(req.user);
-  res.status(200).json({
-    success: true,
-    user,
-  });
+const getMyProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user);
+
+    if (!user) return next(new ErrorHandler("User not found", 404));
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log("Error in getting my profile", error);
+    next(error);
+  }
 };
 const logout = async (req, res) => {
   res
@@ -67,20 +85,30 @@ const logout = async (req, res) => {
 };
 
 const searchUser = async (req, res, next) => {
-  const { name } = req.query;
-  const myChats = await Chat.find({ groupChat: false, members: req.user });
-  // ALl Users from my chats means friends or people I have chatted with
-  const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
+  try {
+    const { name = "" } = req.query;
+    const myChats = await Chat.find({ groupChat: false, members: req.user });
+    // ALl Users from my chats means friends or people I have chatted with
+    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
 
-  // Finding all users except me and my friends
-  const allUsersExceptMeAndFriends = await User.find({
-    _id: { $nin: allUsersFromMyChats },
-    name: { $regex: name, $options: "i" },
-  });
-  res.status(200).json({
-    success: true,
-    message: name,
-  });
+    // Finding all users except me and my friends
+    const allUsersExceptMeAndFriends = await User.find({
+      _id: { $nin: allUsersFromMyChats },
+      name: { $regex: name, $options: "i" },
+    });
+    const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
+      _id,
+      name,
+      avatar: avatar.url,
+    }));
+    res.status(200).json({
+      success: true,
+      message: users,
+    });
+  } catch (error) {
+    console.log("Error in searching user", error);
+    next(error);
+  }
 };
 
 const sendFriendRequest = async (req, res, next) => {
