@@ -41,7 +41,7 @@ const newUser = async (req, res, next) => {
     console.log("Error in creating new user______________________");
     next(error);
   }
-};
+};  
 
 const login = async (req, res, next) => {
   try {
@@ -166,7 +166,7 @@ const acceptFriendRequest = async (req, res, next) => {
 
     const members = [request.sender._id, request.receiver._id];
 
-    await Promise.all([
+    await Promise.all([ 
       Chat.create({
         members,
         name: `${request.sender.name}-${request.receiver.name}`,

@@ -5,11 +5,12 @@ import {
   REFETCH_CHATS,
 } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
-import { Chat } from "../models/chat.js";
-import { User } from "../models/user.js";
-import { deletFilesFromCloudinary, emitEvent } from "../utils/features.js";
+
+import { deletFilesFromCloudinary, emitEvent, uploadFilesToCloudinary } from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { Message } from "../models/message.js";
+import { Chat } from "../models/chat.js";
+import { User } from "../models/user.js";
 
 const newGroupChat = async (req, res, next) => {
   try {
@@ -250,8 +251,11 @@ const leaveGroup = async (req, res, next) => {
 };
 
 const sendAttachments = async (req, res, next) => {
+
+
   try {
     const { chatId } = req.body;
+    // console.log("chatId------->>>>>>", chatId);
 
     const files = req.files || [];
 
@@ -261,22 +265,23 @@ const sendAttachments = async (req, res, next) => {
     if (files.length > 5)
       return next(new ErrorHandler("Files Can't be more than 5", 400));
 
-    const [chat, me] = await Promise.all([
-      Chat.findById(chatId),
-      User.findById(req.user, "name"),
-    ]);
+      const [chat, me] = await Promise.all([
+        Chat.findById(chatId),
+        User.findById(req.user, "name"),
+      ]);
+    console.log("_____memememe______________")
 
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
     //   Upload files here
-    // const attachments = await uploadFilesToCloudinary(files);
-    const attachments = [];
+    const attachments = await uploadFilesToCloudinary(files);
+    // const attachments = [];
 
     const messageForDB = {
       content: "",
       attachments,
       sender: me._id,
-      chat: chatId,
+      chat: chatId, 
     };
 
     const messageForRealTime = {
